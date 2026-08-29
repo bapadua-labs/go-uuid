@@ -3,7 +3,7 @@
 Biblioteca leve em Go para geração de **UUID versão 4** (aleatório), conforme a [RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122) (atualizada pela [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562)).
 
 ```go
-import gouuid "github.com/bapadua/go-uuid"
+import gouuid "github.com/bapadua-labs/go-uuid"
 
 id := gouuid.NewUUIDv4()
 // exemplo: "550e8400-e29b-41d4-a716-446655440000"
@@ -100,7 +100,7 @@ Esta biblioteca segue exatamente esse algoritmo, usando `crypto/rand` do Go.
 ## Instalação
 
 ```bash
-go get github.com/bapadua/go-uuid
+go get github.com/bapadua-labs/go-uuid
 ```
 
 Requisito: **Go 1.26+** (conforme o `go.mod` do projeto).
@@ -117,7 +117,7 @@ package main
 import (
 	"fmt"
 
-	gouuid "github.com/bapadua/go-uuid"
+	gouuid "github.com/bapadua-labs/go-uuid"
 )
 
 func main() {
