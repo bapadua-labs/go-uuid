@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="go-uuid — biblioteca Go para UUID v4 (RFC 4122). Aprenda o que é UUID e gere IDs aleatórios com uma API mínima."
+    />
+    <title>go-uuid — UUID v4 em Go</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1f24'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='monospace' font-size='11' font-weight='700' fill='%232dd4bf'%3Euuid%3C/text%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+
+    <header class="hero">
+      <p class="eyebrow">bapadua-labs · RFC 4122</p>
+      <h1 class="brand">go-uuid</h1>
+      <p class="tagline">
+        UUID versão 4 em Go — aleatório, conforme a RFC 4122.
+        Ideal para aprender o formato e gerar IDs únicos sem dependências extras.
+      </p>
+      <div class="cta">
+        <div class="install">
+          <code id="install-cmd">go get github.com/bapadua-labs/go-uuid</code>
+          <button type="button" class="btn-copy" data-copy="go get github.com/bapadua-labs/go-uuid" aria-label="Copiar comando">
+            Copiar
+          </button>
+        </div>
+        <a
+          class="btn-link"
+          href="https://github.com/bapadua-labs/go-uuid"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <section class="section" id="uuid">
+        <h2>O que é UUID?</h2>
+        <p class="lead">
+          Um <strong>UUID</strong> (<em>Universally Unique Identifier</em>) é um
+          identificador de <strong>128 bits</strong> (16 bytes). A ideia é
+          gerar IDs únicos em sistemas distribuídos <em>sem</em> um servidor
+          central de sequência.
+        </p>
+
+        <div class="anatomy" aria-label="Anatomia de um UUID v4">
+          <div class="token-line">
+            <span class="part header">xxxxxxxx</span><span class="dot">-</span
+            ><span class="part payload">xxxx</span><span class="dot">-</span
+            ><span class="part signature">Mxxx</span><span class="dot">-</span
+            ><span class="part header">Nxxx</span><span class="dot">-</span
+            ><span class="part payload">xxxxxxxxxxxx</span>
+          </div>
+          <ul class="parts">
+            <li>
+              <span class="swatch header"></span>
+              <div>
+                <strong>Grupos aleatórios</strong>
+                <p>
+                  A maior parte dos bits vem de gerador criptográfico
+                  (<code>crypto/rand</code>). São 122 bits livres de aleatoriedade.
+                </p>
+              </div>
+            </li>
+            <li>
+              <span class="swatch signature"></span>
+              <div>
+                <strong>Versão (<code>M</code>)</strong>
+                <p>
+                  No UUID v4, o 3º grupo <strong>sempre</strong> começa com
+                  <code>4</code> — os 4 bits altos do byte 6 valem
+                  <code>0100</code>.
+                </p>
+              </div>
+            </li>
+            <li>
+              <span class="swatch payload"></span>
+              <div>
+                <strong>Variante (<code>N</code>)</strong>
+                <p>
+                  O 4º grupo começa com <code>8</code>, <code>9</code>,
+                  <code>a</code> ou <code>b</code> — variante RFC 4122
+                  (<code>10xxxxxx</code> no byte 8.
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="flow">
+          <div class="flow-step">
+            <span class="flow-num">1</span>
+            <div>
+              <strong>16 bytes aleatórios</strong>
+              <p>Preenche o UUID com entropia do sistema operacional.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <span class="flow-num">2</span>
+            <div>
+              <strong>Versão e variante</strong>
+              <p>
+                Ajusta os bits fixos da RFC e formata em
+                <code>8-4-4-4-12</code> (36 caracteres).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p class="callout">
+          Exemplo válido:
+          <code>f47ac10b-58cc-<strong>4</strong>372-<strong>a</strong>567-0e02b2c3d479</code>
+          — o <code>4</code> marca a versão; o <code>a</code> marca a variante.
+        </p>
+      </section>
+
+      <section class="section" id="v4">
+        <h2>Por que a versão 4?</h2>
+        <p class="lead">
+          A v4 é a mais usada no dia a dia: IDs opacos, sem vazar hora, MAC ou
+          hostname — e sem precisar coordenar geração entre serviços.
+        </p>
+        <div class="two-col">
+          <div>
+            <h3>Vantagens</h3>
+            <ul>
+              <li>Não depende de relógio nem de hardware</li>
+              <li>Não revela ordem de criação</li>
+              <li>Simples de gerar em qualquer ambiente</li>
+              <li>Espaço enorme: 122 bits aleatórios</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Outras versões</h3>
+            <ul>
+              <li><strong>v1</strong> — tempo + MAC</li>
+              <li><strong>v3 / v5</strong> — hash de um nome</li>
+              <li><strong>v7</strong> — tempo + aleatório (bom para índices)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="uso">
+        <h2>Uso com go-uuid</h2>
+        <p class="lead">Duas entradas: string direto ou struct com <code>String()</code>.</p>
+        <div class="code-block">
+          <pre><code><span class="kw">package</span> main
+
+<span class="kw">import</span> (
+	<span class="str">"fmt"</span>
+
+	gouuid <span class="str">"github.com/bapadua-labs/go-uuid"</span>
+)
+
+<span class="kw">func</span> main() {
+	<span class="comment">// string direto</span>
+	id := gouuid.NewUUIDv4()
+	fmt.Println(id)
+
+	<span class="comment">// struct (String() devolve o valor já gerado)</span>
+	u := gouuid.NewUUID()
+	fmt.Println(u.String())
+}</code></pre>
+        </div>
+      </section>
+
+      <section class="section" id="api">
+        <h2>API</h2>
+        <dl class="api-list">
+          <div>
+            <dt><code>NewUUIDv4()</code></dt>
+            <dd>Gera um UUID v4 e devolve a representação textual (<code>string</code>).</dd>
+          </div>
+          <div>
+            <dt><code>NewUUID()</code></dt>
+            <dd>Gera um UUID v4 encapsulado no struct <code>UUID</code>.</dd>
+          </div>
+          <div>
+            <dt><code>(UUID).String()</code></dt>
+            <dd>Devolve o valor já gerado — não cria outro UUID a cada chamada.</dd>
+          </div>
+          <div>
+            <dt><code>type UUID</code></dt>
+            <dd><code>struct { UUID string }</code> — valor armazenado no campo <code>UUID</code>.</dd>
+          </div>
+        </dl>
+
+        <h3>Algoritmo (RFC 4122)</h3>
+        <dl class="api-list compact">
+          <div>
+            <dt><code>bytes[6] = (bytes[6] &amp; 0x0f) | 0x40</code></dt>
+            <dd>Fixa a versão em <code>4</code> (<code>0100xxxx</code>).</dd>
+          </div>
+          <div>
+            <dt><code>bytes[8] = (bytes[8] &amp; 0x3f) | 0x80</code></dt>
+            <dd>Fixa a variante RFC 4122 (<code>10xxxxxx</code>).</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="section" id="quando">
+        <h2>Quando usar</h2>
+        <div class="two-col">
+          <div>
+            <h3>Bom para</h3>
+            <ul>
+              <li>Chaves primárias / IDs de recurso em APIs</li>
+              <li>Correlation IDs em logs e tracing</li>
+              <li>Tokens opacos sem sequência previsível</li>
+              <li>Sistemas distribuídos sem coordenação de IDs</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Considere alternativas se</h3>
+            <ul>
+              <li>Precisar de ordem temporal em índice → UUID v7</li>
+              <li>Precisar de ID determinístico → UUID v3/v5</li>
+              <li>Quiser IDs curtos e legíveis → ULID, nanoid…</li>
+            </ul>
+          </div>
+        </div>
+        <ul class="tips">
+          <li>Todo UUID v4 válido tem <strong>36</strong> caracteres no formato canônico.</li>
+          <li>O 3º grupo começa com <code>4</code>; o 4º com <code>8</code>, <code>9</code>, <code>a</code> ou <code>b</code>.</li>
+          <li>A lib usa <code>crypto/rand</code> — adequado para IDs não previsíveis.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        MIT ·
+        <a href="https://github.com/bapadua-labs/go-uuid">github.com/bapadua-labs/go-uuid</a>
+      </p>
+      <p class="req">Go 1.26+ · RFC 4122 / RFC 9562</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
